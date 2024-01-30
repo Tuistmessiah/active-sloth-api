@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@types/node": "^20.11.10"
+  },
+  "name": "asa-active-sloth-api",
+  "version": "1.0.0",
+  "description": "NodeJS with Express and Mongoose for Active Sloth API and server needs",
+  "main": "server.js",
+  "dependencies": {
+    "undici-types": "^5.26.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pedro Caetano",
+  "license": "ISC"
+}
