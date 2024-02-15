@@ -1,5 +1,6 @@
-import express from 'express';
+import express, { Request } from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
 
 import userRouter from './routers/user.router';
 import dayRouter from './routers/day.router';
@@ -10,12 +11,14 @@ import { AppError, handleCastErrorDB, handleDuplicateFieldsDB, handleJWTError, h
 
 const app = express();
 
+app.use(cors());
+
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
-app.use((req, res, next) => {
+app.use((req: Request, res, next) => {
   req.requestTime = new Date().toISOString();
   console.info(req.headers);
   next();

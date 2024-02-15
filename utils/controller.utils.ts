@@ -1,4 +1,15 @@
+import { Response } from 'express';
 import { catchAsync, error } from './error-handling.utils';
+import { SuccessResponse } from '../interfaces/api.interface';
+
+export async function resSuccess<T>(res: Response, statusCode: number, data: T): Promise<SuccessResponse<T>> {
+  const resObj: SuccessResponse<T> = {
+    status: 'success',
+    data,
+  };
+  await res.status(statusCode).json(resObj);
+  return resObj;
+}
 
 export class ACRUD {
   static all = (Model) =>

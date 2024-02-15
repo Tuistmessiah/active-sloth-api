@@ -1,6 +1,7 @@
 import { Document, Types } from 'mongoose';
 
 export interface IUser extends Document {
+  _id?: string;
   name: string;
   email: string;
   role: string;
@@ -10,11 +11,12 @@ export interface IUser extends Document {
   passwordResetToken?: string;
   passwordResetExpires?: Date;
   active: boolean;
+  tags: { title: string; color: string }[];
   correctPassword: (candidatePassword: string, userPassword: string) => Promise<boolean>;
   checkPasswordChangedAfter: (JWTTimestamp: number) => boolean;
 }
 
-export interface IEntry {
+export interface IEntry extends Document {
   text: string;
   tag?: string;
 }

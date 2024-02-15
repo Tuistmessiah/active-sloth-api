@@ -1,8 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { CookieOptions } from 'express';
+import { CookieOptions, Request, Response, NextFunction } from 'express';
+
+import { IUser } from '../interfaces/models.interface';
 
 import User from '../models/user.model';
 import { AppError, catchAsync, error } from '../utils/error-handling.utils';
+import { AuthResponse, IUserInputDTO, SignupRequest, SignupResponse } from '../interfaces/controllers.interface';
 
 const DAY_TO_MS = 24 * 60 * 60 * 1000;
 
@@ -15,7 +18,7 @@ const signToken = (id) => {
 /**
  * Stores jwt in cookie.
  */
-const createSendToken = (user, res) => {
+const createSendToken = (user: IUser, res) => {
   const outputUser = user;
   const token = signToken(user._id);
   const cookieOptions: CookieOptions = {
@@ -30,8 +33,8 @@ const createSendToken = (user, res) => {
   return { outputUser, token };
 };
 
-const signup = catchAsync(async function (req, res) {
-  const newUser = await User.create({
+const signup = catchAsync(async function (req: SignupRequest, res: SignupResponse) {
+  const newUser: IUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
@@ -50,9 +53,8 @@ const signup = catchAsync(async function (req, res) {
   });
 });
 
-const login = catchAsync(async (req, res, next) => {
+const login = catchAsync(async (req: Request<{}, {}, IUserInputDTO>, res: Response<AuthResponse>, next: NextFunction) => {
   const { email, password } = req.body;
-
   if (!email || !password) return next(new AppError('Please provide email and password!', 400));
 
   const user = await User.findOne({ email }).select('+password'); // default 'password' is not selected

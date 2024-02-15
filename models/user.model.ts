@@ -4,64 +4,69 @@ import bcrypt from 'bcryptjs';
 
 import { IUser } from '../interfaces/models.interface';
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Please tell us your name!'],
-  },
-  email: {
-    type: String,
-    required: [true, 'Please provide your email'],
-    unique: true,
-    lowercase: true,
-    validate: [validator.isEmail, 'Please provide a valid email'],
-  },
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
-  },
-  password: {
-    type: String,
-    required: [true, 'Please provide a password'],
-    minlength: 8,
-    select: false,
-  },
-  passwordConfirm: {
-    type: String,
-    required: [true, 'Please confirm your password'],
-    validate: {
-      // This only works on CREATE and SAVE!!!
-      validator: function (el) {
-        return el === this.password;
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Please tell us your name!'],
+    },
+    email: {
+      type: String,
+      required: [true, 'Please provide your email'],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, 'Please provide a valid email'],
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
+    password: {
+      type: String,
+      required: [true, 'Please provide a password'],
+      minlength: 8,
+      select: false,
+    },
+    passwordConfirm: {
+      type: String,
+      required: [true, 'Please confirm your password'],
+      validate: {
+        // This only works on CREATE and SAVE!!!
+        validator: function (el) {
+          return el === this.password;
+        },
+        message: 'Passwords are not the same!',
       },
-      message: 'Passwords are not the same!',
+    },
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
+    tags: {
+      type: [
+        {
+          title: { type: String, required: true },
+          color: { type: String, required: true },
+        },
+      ],
+      default: () => [
+        { title: 'love', color: '#FF0000' },
+        { title: 'work', color: '#00FF00' },
+        { title: 'family', color: '#0000FF' },
+        { title: 'health', color: '#FFA500' },
+        { title: 'hobby', color: '#800080' },
+      ],
     },
   },
-  passwordChangedAt: Date,
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-  active: {
-    type: Boolean,
-    default: true,
-    select: false,
-  },
-  tags: {
-    type: [
-      {
-        title: { type: String, required: true },
-        color: { type: String, required: true },
-      },
-    ],
-    default: () => [
-      { title: 'love', color: '#FF0000' },
-      { title: 'work', color: '#00FF00' },
-      { title: 'family', color: '#0000FF' },
-      { title: 'health', color: '#FFA500' },
-      { title: 'hobby', color: '#800080' },
-    ],
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 // * Middleware
 

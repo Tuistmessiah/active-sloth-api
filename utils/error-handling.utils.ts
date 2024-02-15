@@ -1,7 +1,11 @@
-import { NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 
-export function catchAsync(fn: (req, res, next) => Promise<void>) {
+import { CustomError } from '../interfaces/controllers.interface';
+
+// TODO: This is ALL middlware that should be in middleware folder
+
+export function catchAsync(fn: (req, res, next) => Promise<any>) {
   return (req, res, next) => {
     fn(req, res, next).catch(next);
   };
@@ -54,7 +58,7 @@ export const handleJWTError = () => new AppError('Invalid token. Please log in a
 
 export const handleJWTExpiredError = () => new AppError('Your token has expired! Please log in again.', 401);
 
-export const sendErrorDev = (err, res) => {
+export const sendErrorDev = (err: CustomError, res: Response) => {
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -63,7 +67,7 @@ export const sendErrorDev = (err, res) => {
   });
 };
 
-export const sendErrorProd = (err, res) => {
+export const sendErrorProd = (err: CustomError, res: Response) => {
   // Operational, error: catched purposedly
   if (err.isOperational) {
     res.status(err.statusCode).json({

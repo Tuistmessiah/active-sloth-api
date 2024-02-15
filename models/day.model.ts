@@ -1,5 +1,6 @@
-import { isFuture, startOfDay } from 'date-fns';
 import mongoose from 'mongoose';
+import { isFuture, startOfDay } from 'date-fns';
+import { IDay } from '../interfaces/models.interface';
 
 const entrySchema = new mongoose.Schema(
   {
@@ -12,22 +13,27 @@ const entrySchema = new mongoose.Schema(
   { _id: false }
 );
 
-const daySchema = new mongoose.Schema({
-  userFK: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: [true, 'Day requires a user'] },
-  date: {
-    type: Date,
-    default: () => startOfDay(new Date()),
-    validate: {
-      validator: function (value: Date) {
-        const dateValue = startOfDay(value);
-        return !isFuture(dateValue);
+const daySchema = new mongoose.Schema(
+  {
+    userFK: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: [true, 'Day requires a user'] },
+    date: {
+      type: Date,
+      default: () => startOfDay(new Date()),
+      validate: {
+        validator: function (value: Date) {
+          const dateValue = startOfDay(value);
+          return !isFuture(dateValue);
+        },
+        message: 'Date cannot be in the future.',
       },
-      message: 'Date cannot be in the future.',
     },
+    title: String,
+    entries: [entrySchema],
   },
-  title: String,
-  entries: [entrySchema],
-});
+  {
+    timestamps: true,
+  }
+);
 
 daySchema.index({ userFK: 1, date: 1 }, { unique: true });
 
@@ -53,6 +59,6 @@ daySchema.pre('save', async function (next) {
   }
 });
 
-const Day = mongoose.model('Day', daySchema);
+const Day = mongoose.model<IDay>('Day', daySchema);
 
 export default Day;

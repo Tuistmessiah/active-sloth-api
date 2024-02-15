@@ -1,7 +1,9 @@
-import { Request } from 'express';
+import { NextFunction, Request } from 'express';
 import mongoose, { Types } from 'mongoose';
 import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
+
+import { RequestWithIUser } from '../interfaces/middleware.interface';
 
 import { catchAsync, error } from '../utils/error-handling.utils';
 import User from '../models/user.model';
@@ -12,10 +14,6 @@ interface MiddlewareOptions {
   idField: string;
 }
 
-interface ExtendedRequest extends Request {
-  user?: { _id: Types.ObjectId | string };
-}
-
 /**
  * Checks if user has permission over this document based on FK from document
  * @param options setup where compaing id is and what is its key name
@@ -23,7 +21,7 @@ interface ExtendedRequest extends Request {
  * @returns function middleware and document in req[model]
  */
 export function checkOwnership(options: MiddlewareOptions) {
-  return catchAsync(async (req: ExtendedRequest, res, next) => {
+  return catchAsync(async (req: Request, res, next) => {
     const { model, key, idField } = options;
     const ChildModel = mongoose.model(model);
     const docId = req[key][idField];
@@ -44,7 +42,7 @@ export function checkOwnership(options: MiddlewareOptions) {
  * @return add to request "user"
  */
 export function protect() {
-  return catchAsync(async (req, _res, next) => {
+  return catchAsync(async (req: RequestWithIUser, _res: Response, next: NextFunction) => {
     if (!(req.headers.authorization && req.headers.authorization?.startsWith('Bearer'))) {
       return error('You are not logged in! Please log in to get access.', 401, next);
     }

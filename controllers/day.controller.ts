@@ -1,13 +1,18 @@
 import { startOfMonth, endOfMonth, parse } from 'date-fns';
+import { Request, Response } from 'express';
+
+import { GetDaysInCurrentMonth, UpdateDay } from '../interfaces/api.interface';
 
 import { catchAsync, error } from '../utils/error-handling.utils';
+import { transformDayToDTO } from '../utils/parser.utils';
+import { resSuccess } from '../utils/controller.utils';
 import { filterObj } from '../utils/data.utils';
 import Day from '../models/day.model';
 
 /**
  * @otherParams "user._id"
  */
-const getDaysInCurrentMonth = catchAsync(async (req, res) => {
+const getDaysInCurrentMonth = catchAsync(async (req: Request, res: Response): GetDaysInCurrentMonth => {
   const userId = req.user._id;
   const start = startOfMonth(new Date());
   const end = endOfMonth(new Date());
@@ -16,18 +21,19 @@ const getDaysInCurrentMonth = catchAsync(async (req, res) => {
     userFK: userId,
     date: { $gte: start, $lte: end },
   });
+  const dayDTOs = days.map(transformDayToDTO);
 
-  res.status(200).json({ status: 'success', data: days });
+  return await resSuccess(res, 200, dayDTOs);
 });
 
 /**
  * @queryParams "start=YYYY-MM", "end=YYYY-MM"
  * @otherParams "user._id"
  */
-const getDaysInMonths = catchAsync(async (req, res, next) => {
+const getDaysInMonths = catchAsync(async (req: Request, res: Response, next) => {
   const userId = req.user._id;
-  const startDate = startOfMonth(parse(req.query.start, 'yyyy-MM', new Date()));
-  const endDate = endOfMonth(parse(req.query.end, 'yyyy-MM', new Date()));
+  const startDate = startOfMonth(parse(req.query.start as string, 'yyyy-MM', new Date()));
+  const endDate = endOfMonth(parse(req.query.end as string, 'yyyy-MM', new Date()));
 
   if (startDate > endDate) return error('Start date must be before end date.', 400, next);
 
@@ -43,10 +49,10 @@ const getDaysInMonths = catchAsync(async (req, res, next) => {
  * Create Day as a user
  * @otherParams "user._id"
  */
-const createDay = catchAsync(async (req, res) => {
+const createDay = catchAsync(async (req: Request, res: Response) => {
   const newDay = await Day.create({ ...req.body, userFK: req.user._id });
-
-  res.status(201).json({ status: 'success', data: { data: newDay } });
+  const newDayDTO = transformDayToDTO(newDay);
+  return await resSuccess(res, 201, newDayDTO);
 });
 
 /**
@@ -55,14 +61,16 @@ const createDay = catchAsync(async (req, res) => {
  * @params "dayId"
  * @otherParams "user._id"
  */
-const updateDay = catchAsync(async (req, res) => {
-  const filteredBody = filterObj(req.body, 'title');
+const updateDay = catchAsync(async (req: Request, res: Response): UpdateDay => {
+  console.log({ body: req.body });
+  const filteredBody = filterObj(req.body, 'title', 'entries');
+  console.log({ filteredBody, userId: req.user._id });
   const updatedDay = await Day.findOneAndUpdate({ _id: req.params.dayId, userFK: req.user._id }, filteredBody, {
     new: true,
     runValidators: true,
   });
-
-  res.status(200).json({ status: 'success', data: updatedDay });
+  const updatedDayDTO = transformDayToDTO(updatedDay);
+  return await resSuccess(res, 200, updatedDayDTO);
 });
 
 /**
@@ -70,7 +78,7 @@ const updateDay = catchAsync(async (req, res) => {
  * @params "dayId"
  * @otherParams "user._id"
  */
-const deleteDay = catchAsync(async (req, res) => {
+const deleteDay = catchAsync(async (req: Request, res: Response) => {
   await Day.findByIdAndDelete({ _id: req.params.dayId, userFK: req.user._id });
 
   res.status(204).json({ status: 'success', data: null });
@@ -81,7 +89,7 @@ const deleteDay = catchAsync(async (req, res) => {
  * @body "entries"
  * @otherParams "Day"
  */
-const updateEntries = async (req, res) => {
+const updateEntries = async (req: Request, res: Response) => {
   console.log({ req });
   const currentDay = req.Day;
   currentDay.entries = req.body.entries;
