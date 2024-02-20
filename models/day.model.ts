@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { isFuture, startOfDay } from 'date-fns';
+import { startOfDay, parseISO, isFuture } from 'date-fns';
 import { IDay } from '../interfaces/models.interface';
 
 const entrySchema = new mongoose.Schema(
@@ -18,11 +18,9 @@ const daySchema = new mongoose.Schema(
     userFK: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: [true, 'Day requires a user'] },
     date: {
       type: Date,
-      default: () => startOfDay(new Date()),
       validate: {
         validator: function (value: Date) {
-          const dateValue = startOfDay(value);
-          return !isFuture(dateValue);
+          return !isFuture(value);
         },
         message: 'Date cannot be in the future.',
       },
@@ -38,16 +36,16 @@ const daySchema = new mongoose.Schema(
 daySchema.index({ userFK: 1, date: 1 }, { unique: true });
 
 /**
- * On create: Check if same day already exists
+ * On create: Reset to hour 0, check if same day already exists
  */
 daySchema.pre('save', async function (next) {
   if (!this.isNew) {
     next();
     return;
   }
-
   const doc = this;
-  doc.date = startOfDay(doc.date || new Date());
+  const dateAtStartOfDayUTC = new Date(doc.date.toISOString().slice(0, 10) + 'T00:00:00.000Z');
+  doc.date = dateAtStartOfDayUTC;
 
   try {
     const existingDoc = await Day.findOne({ userFK: doc.userFK, date: doc.date });

@@ -5,9 +5,6 @@ import { IDay } from '../interfaces/models.interface';
  * @returns "date" is a string
  */
 export function transformDayToDTO(day: IDay): DayDTO {
-  console.log(day.date);
-  console.log(day.date.toString());
-
   return {
     id: day.id,
     date: day.date.toISOString(),

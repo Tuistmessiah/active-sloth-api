@@ -1,11 +1,10 @@
-import { startOfMonth, endOfMonth, parse } from 'date-fns';
+import { parseISO, startOfDay, startOfMonth, endOfMonth, parse } from 'date-fns';
 import { Request, Response } from 'express';
-
-import { GetDaysInCurrentMonth, UpdateDay } from '../interfaces/api.interface';
+import { CreateDay, GetDaysInCurrentMonth, UpdateDay } from '../interfaces/api.interface';
 
 import { catchAsync, error } from '../utils/error-handling.utils';
 import { transformDayToDTO } from '../utils/parser.utils';
-import { resSuccess } from '../utils/controller.utils';
+import { success } from '../utils/controller.utils';
 import { filterObj } from '../utils/data.utils';
 import Day from '../models/day.model';
 
@@ -23,7 +22,7 @@ const getDaysInCurrentMonth = catchAsync(async (req: Request, res: Response): Ge
   });
   const dayDTOs = days.map(transformDayToDTO);
 
-  return await resSuccess(res, 200, dayDTOs);
+  return await success(res, 200, dayDTOs);
 });
 
 /**
@@ -49,10 +48,10 @@ const getDaysInMonths = catchAsync(async (req: Request, res: Response, next) => 
  * Create Day as a user
  * @otherParams "user._id"
  */
-const createDay = catchAsync(async (req: Request, res: Response) => {
+const createDay = catchAsync(async (req: Request, res: Response): CreateDay => {
   const newDay = await Day.create({ ...req.body, userFK: req.user._id });
   const newDayDTO = transformDayToDTO(newDay);
-  return await resSuccess(res, 201, newDayDTO);
+  return await success(res, 201, newDayDTO);
 });
 
 /**
@@ -62,15 +61,13 @@ const createDay = catchAsync(async (req: Request, res: Response) => {
  * @otherParams "user._id"
  */
 const updateDay = catchAsync(async (req: Request, res: Response): UpdateDay => {
-  console.log({ body: req.body });
   const filteredBody = filterObj(req.body, 'title', 'entries');
-  console.log({ filteredBody, userId: req.user._id });
   const updatedDay = await Day.findOneAndUpdate({ _id: req.params.dayId, userFK: req.user._id }, filteredBody, {
     new: true,
     runValidators: true,
   });
   const updatedDayDTO = transformDayToDTO(updatedDay);
-  return await resSuccess(res, 200, updatedDayDTO);
+  return await success(res, 200, updatedDayDTO);
 });
 
 /**
@@ -90,7 +87,6 @@ const deleteDay = catchAsync(async (req: Request, res: Response) => {
  * @otherParams "Day"
  */
 const updateEntries = async (req: Request, res: Response) => {
-  console.log({ req });
   const currentDay = req.Day;
   currentDay.entries = req.body.entries;
   await currentDay.save();
