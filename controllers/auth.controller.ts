@@ -6,6 +6,7 @@ import { IUser } from '../interfaces/models.interface';
 import User from '../models/user.model';
 import { AppError, catchAsync, error } from '../utils/error-handling.utils';
 import { AuthResponse, IUserInputDTO, SignupRequest, SignupResponse } from '../interfaces/controllers.interface';
+import { success } from '../utils/controller.utils';
 
 const DAY_TO_MS = 24 * 60 * 60 * 1000;
 
@@ -23,9 +24,9 @@ const createSendToken = (user: IUser, res) => {
   const token = signToken(user._id);
   const cookieOptions: CookieOptions = {
     expires: new Date(Date.now() + Number(process.env.JWT_COOKIE_EXPIRES_IN) * DAY_TO_MS),
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
   };
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
   res.cookie('jwt', token, cookieOptions);
   outputUser.password = undefined;
@@ -74,7 +75,13 @@ const login = catchAsync(async (req: Request<{}, {}, IUserInputDTO>, res: Respon
   });
 });
 
+/** Protected */
+const checkSession = catchAsync(async (req: Request<{}, {}, IUserInputDTO>, res: Response<AuthResponse>, next: NextFunction) => {
+  return await success(res, 200, { user: req.user });
+});
+
 export default {
   signup,
   login,
+  checkSession,
 };

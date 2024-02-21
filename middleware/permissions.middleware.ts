@@ -1,5 +1,5 @@
 import { NextFunction, Request } from 'express';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
 
@@ -38,15 +38,19 @@ export function checkOwnership(options: MiddlewareOptions) {
 }
 
 /**
- * Middleware: Grants access if token is valid for user
+ * Middleware: Grants access if token is valid for user (checks token from Bearer and then from Cookies)
  * @return add to request "user"
  */
 export function protect() {
   return catchAsync(async (req: RequestWithIUser, _res: Response, next: NextFunction) => {
-    if (!(req.headers.authorization && req.headers.authorization?.startsWith('Bearer'))) {
-      return error('You are not logged in! Please log in to get access.', 401, next);
-    }
-    let token: string = req.headers.authorization.split(' ')[1];
+    const authorization = req.headers.authorization;
+    let token: string | undefined = undefined;
+
+    if (authorization && authorization?.startsWith('Bearer')) token = authorization.split(' ')[1];
+    else if (req.cookies.jwt) token = req.cookies.jwt;
+
+    if (!token) return error('You are not logged in! Please log in to get access.', 401, next);
+
     const decodedToken = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
     // Check user for this token
@@ -67,7 +71,7 @@ export function protect() {
  * Middleware: Grants access only to user with specified roles
  */
 export function restrict(...roles) {
-  return (req, res, next) => {
+  return (req, _res, next) => {
     // roles ['admin', 'user']. role='user'
     if (!roles.includes(req.user.role)) return error('You do not have permission to perform this action.', 403, next);
     next();

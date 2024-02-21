@@ -12,6 +12,7 @@ router.post('/login', authController.login);
 
 router.use(protect());
 
+router.get('/check-session', authController.checkSession);
 router.patch('/updateMe', updateMe);
 router.delete('/deleteMe', deleteMe);
 

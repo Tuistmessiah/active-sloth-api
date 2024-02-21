@@ -1,26 +1,67 @@
 import express, { Request } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import xss from 'xss-clean';
+import mongoSanitize from 'express-mongo-sanitize';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 
 import userRouter from './routers/user.router';
 import dayRouter from './routers/day.router';
 
 import { AppError, handleCastErrorDB, handleDuplicateFieldsDB, handleJWTError, handleJWTExpiredError, handleValidationErrorDB, sendErrorDev, sendErrorProd } from './utils/error-handling.utils';
 
-// * Setup & Security
-
 const app = express();
-
-app.use(cors());
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+// * Setup & Security
+
+// Set security HTTP headers
+app.use(helmet());
+
+// Limit requests from same API
+// TODO: Give frontend message on too many requests error
+const limiter = rateLimit({
+  max: 300,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again in an hour!',
+});
+app.use('/api', limiter);
+
+// Body parser, reading data from body into req.body
+app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
+
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
+
+// TODO
+// Refresh tokens
+// Two factor auth
+// Cross Site Request Forgery (csurf)
+// Maximum login attempts
+// Prevent parameter pollution
+
+// Cors
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+// * Initial middleware
+
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 app.use((req: Request, res, next) => {
   req.requestTime = new Date().toISOString();
-  console.info(req.headers);
   next();
 });
 
