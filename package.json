@@ -27,7 +27,9 @@
     "xss-clean": "^0.1.4"
   },
   "scripts": {
-    "start": "nodemon server.ts"
+    "start": "nodemon server.ts",
+    "build": "tsc",
+    "vercel-build": "echo hello"
   },
   "author": "Pedro Caetano",
   "license": "ISC"
