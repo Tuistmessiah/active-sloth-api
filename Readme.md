@@ -4,7 +4,11 @@ This is a simple Node API setup to connect to a Mongo database. It uses express/
 
 ## Setup
 
-To run this api in your local device, clone/download repo, install dependencies `npm install`, setup `DATABASE` and `DATABASE_PASSWORD` in your `.env` or `.env.local` file and run the server.ts file `npm run start` (uses `nodemon`).
+To run this api in your local device, clone/download repo, install dependencies `npm install`, setup `DATABASE` and `DATABASE_PASSWORD` in your `.env` or `.env.local` file. To run locally, in dev mode, run the server.ts file `npm run dev` (uses `nodemon` and will use `.env.local` variables). To run in production, build with `npm run build` and `npm run start`.
+
+## Deployment
+
+Each deployment structure has it's own configuration. For this one, render.com was used. environment variables can easily be defined in the service, so `.env` is ignored. A whitelisted IP can be set with `TEMP_FRONTEND_IP_ACCESS` for to consume the API.
 
 ## Versioning
 

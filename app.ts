@@ -13,12 +13,12 @@ import dayRouter from './routers/day.router';
 import { AppError, handleCastErrorDB, handleDuplicateFieldsDB, handleJWTError, handleJWTExpiredError, handleValidationErrorDB, sendErrorDev, sendErrorProd } from './utils/error-handling.utils';
 
 const app = express();
-console.info('Using env: ' + process.env.NODE_ENV);
-console.info('Using env: ' + process.env.TEMP_FRONTEND_IP_ACCESS);
 
-// if (process.env.NODE_ENV === 'development') {
-//   app.use(morgan('dev'));
-// }
+const { NODE_ENV, TEMP_FRONTEND_IP_ACCESS } = process.env || {};
+
+console.info('Using env: ' + NODE_ENV);
+console.info('Allowing (CORS) access to IP: ' + TEMP_FRONTEND_IP_ACCESS);
+
 app.use(morgan('dev'));
 
 // * Setup & Security
@@ -54,32 +54,12 @@ app.use(xss());
 // Prevent parameter pollution
 
 // Cors
-const corsOptions = {
-  origin: 'http://localhost:3000',
-  credentials: true,
-};
-// TODO: Protect production mode to offer CorsOptions to URL where frontend is hosted
-const tempProdOptions = {
-  origin: process.env.TEMP_FRONTEND_IP_ACCESS,
-  credentials: true,
-};
-if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
-else if (process.env.NODE_ENV === 'production') app.use(cors(tempProdOptions));
-else app.use(cors());
-
-// ! Remove and test
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.header('origin')); // Echo back the origin header
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  if (req.method === 'OPTIONS') {
-    // Pre-flight request. The request method is OPTIONS when browser is asking for permission to make the actual request
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
+if (NODE_ENV as string | undefined) {
+  const origin = NODE_ENV === 'development' ? 'http://localhost:3000' : TEMP_FRONTEND_IP_ACCESS;
+  app.use(cors({ origin, credentials: true }));
+} else {
+  app.use(cors());
+}
 
 // * Initial middleware
 
@@ -111,9 +91,9 @@ app.use((err, _req, res, _next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  if (process.env.NODE_ENV === 'development') {
+  if (NODE_ENV === 'development') {
     sendErrorDev(err, res);
-  } else if (process.env.NODE_ENV === 'production') {
+  } else if (NODE_ENV === 'production') {
     let error = { ...err };
 
     if (error.name === 'CastError') error = handleCastErrorDB(error);

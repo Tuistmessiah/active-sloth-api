@@ -25,7 +25,7 @@ const createSendToken = (user: IUser, res) => {
   const cookieOptions: CookieOptions = {
     expires: new Date(Date.now() + Number(process.env.JWT_COOKIE_EXPIRES_IN) * DAY_TO_MS),
     secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
+    httpOnly: process.env.NODE_ENV === 'development',
     sameSite: 'none',
   };
 
