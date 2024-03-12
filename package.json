@@ -2,6 +2,7 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.11.10",
+    "dotenv": "^16.4.5",
     "ts-node": "^10.9.2"
   },
   "name": "asa-active-sloth-api",
@@ -14,7 +15,6 @@
     "cors": "^2.8.5",
     "date-fns": "2.0.0",
     "date-fns-tz": "^2.0.0",
-    "dotenv": "^16.4.1",
     "express": "^4.18.2",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^7.1.5",
@@ -27,8 +27,7 @@
     "xss-clean": "^0.1.4"
   },
   "scripts": {
-    "start-nodemon": "nodemon server.ts",
-    "dev": "ts-node-dev --respawn --transpile-only server.ts",
+    "dev": "NODE_ENV=development nodemon -r dotenv/config server.ts dotenv_config_path=.env.local",
     "start": "node dist/server.js",
     "build": "tsc",
     "postinstall": "npm run build"

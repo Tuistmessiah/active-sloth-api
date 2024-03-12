@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { app } from './app';
 
@@ -8,7 +7,7 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-dotenv.config({ path: './.env.local' });
+console.info('Connecting to: ' + process.env.DATABASE);
 const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
 mongoose.connect(DB).then(() => {
   console.info('DB connection successful!');

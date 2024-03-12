@@ -13,6 +13,7 @@ import dayRouter from './routers/day.router';
 import { AppError, handleCastErrorDB, handleDuplicateFieldsDB, handleJWTError, handleJWTExpiredError, handleValidationErrorDB, sendErrorDev, sendErrorProd } from './utils/error-handling.utils';
 
 const app = express();
+console.info('Using env: ' + process.env.NODE_ENV);
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -50,19 +51,19 @@ app.use(xss());
 // Prevent parameter pollution
 
 // Cors
-// const corsOptions = {
-//   origin: 'http://localhost:3000',
-//   credentials: true,
-// };
-// if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+};
+if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
+// TODO: Protect production mode to offer CorsOptions to URL where frontend is hosted
+else app.use(cors());
 
 // * Initial middleware
 
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 app.use((req: Request, _res, next) => {
-  if (process.env.NODE_ENV === 'development') console.info(req);
   req.requestTime = new Date().toISOString();
   next();
 });
