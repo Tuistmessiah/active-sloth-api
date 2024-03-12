@@ -66,13 +66,8 @@ const tempProdOptions = {
 if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
 else if (process.env.NODE_ENV === 'production') app.use(cors(tempProdOptions));
 else app.use(cors());
-// app.use(
-//   cors({
-//     origin: (origin, callback) => callback(null, true), // Allow any origin
-//     credentials: true, // Credentials are important for cookie-based auth
-//   })
-// );
 
+// ! Remove and test
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', req.header('origin')); // Echo back the origin header
   res.header('Access-Control-Allow-Credentials', 'true');
