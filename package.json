@@ -27,9 +27,11 @@
     "xss-clean": "^0.1.4"
   },
   "scripts": {
-    "start": "nodemon server.ts",
+    "start-nodemon": "nodemon server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
+    "start": "node dist/server.js",
     "build": "tsc",
-    "vercel-build": "echo hello"
+    "postinstall": "npm run build"
   },
   "author": "Pedro Caetano",
   "license": "ISC"

@@ -50,17 +50,19 @@ app.use(xss());
 // Prevent parameter pollution
 
 // Cors
-const corsOptions = {
-  origin: 'http://localhost:3000',
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: 'http://localhost:3000',
+//   credentials: true,
+// };
+// if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
+app.use(cors());
 
 // * Initial middleware
 
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
-app.use((req: Request, res, next) => {
+app.use((req: Request, _res, next) => {
+  if (process.env.NODE_ENV === 'development') console.info(req);
   req.requestTime = new Date().toISOString();
   next();
 });
