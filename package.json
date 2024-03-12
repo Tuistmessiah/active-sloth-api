@@ -27,7 +27,7 @@
     "xss-clean": "^0.1.4"
   },
   "scripts": {
-    "dev": "NODE_ENV=development nodemon -r dotenv/config server.ts dotenv_config_path=.env.local",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "start": "node dist/server.js",
     "build": "tsc",
     "postinstall": "npm run build"
