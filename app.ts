@@ -54,18 +54,37 @@ app.use(xss());
 // Prevent parameter pollution
 
 // Cors
-const corsOptions = {
-  origin: 'http://localhost:3000',
-  credentials: true,
-};
-// TODO: Protect production mode to offer CorsOptions to URL where frontend is hosted
-const tempProdOptions = {
-  origin: process.env.TEMP_FRONTEND_IP_ACCESS,
-  credentials: true,
-};
-if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
-else if (process.env.NODE_ENV === 'production') app.use(cors(tempProdOptions));
-else app.use(cors());
+// const corsOptions = {
+//   origin: 'http://localhost:3000',
+//   credentials: true,
+// };
+// // TODO: Protect production mode to offer CorsOptions to URL where frontend is hosted
+// const tempProdOptions = {
+//   origin: process.env.TEMP_FRONTEND_IP_ACCESS,
+//   credentials: true,
+// };
+// if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
+// else if (process.env.NODE_ENV === 'production') app.use(cors(tempProdOptions));
+// else app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => callback(null, true), // Allow any origin
+    credentials: true, // Credentials are important for cookie-based auth
+  })
+);
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.header('origin')); // Echo back the origin header
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    // Pre-flight request. The request method is OPTIONS when browser is asking for permission to make the actual request
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // * Initial middleware
 
