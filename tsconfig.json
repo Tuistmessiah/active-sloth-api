@@ -4,5 +4,7 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "outDir": "dist"
-  }
+  },
+  "files": ["typings.d.ts"],
+  "include": ["typings.d.ts", "/**/*.ts"]
 }
