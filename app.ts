@@ -56,8 +56,13 @@ const corsOptions = {
   origin: 'http://localhost:3000',
   credentials: true,
 };
-if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
 // TODO: Protect production mode to offer CorsOptions to URL where frontend is hosted
+const tempProdOptions = {
+  origin: 'https://10.0.0.204:3000',
+  credentials: true,
+};
+if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
+else if (process.env.NODE_ENV === 'production') app.use(cors(tempProdOptions));
 else app.use(cors());
 
 // * Initial middleware
