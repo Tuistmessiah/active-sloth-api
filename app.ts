@@ -15,9 +15,10 @@ import { AppError, handleCastErrorDB, handleDuplicateFieldsDB, handleJWTError, h
 const app = express();
 console.info('Using env: ' + process.env.NODE_ENV);
 
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
+// if (process.env.NODE_ENV === 'development') {
+//   app.use(morgan('dev'));
+// }
+app.use(morgan('dev'));
 
 // * Setup & Security
 
@@ -58,7 +59,7 @@ const corsOptions = {
 };
 // TODO: Protect production mode to offer CorsOptions to URL where frontend is hosted
 const tempProdOptions = {
-  origin: 'https://10.0.0.204:3000',
+  origin: process.env.TEMP_FRONTEND_IP_ACCESS,
   credentials: true,
 };
 if (process.env.NODE_ENV === 'development') app.use(cors(corsOptions));
