@@ -11,6 +11,6 @@
     "types": ["node"]
   },
   "files": ["typings.d.ts"],
-  "include": ["typings.d.ts", "typings/**/*.ts", "/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*, typings.d.ts", "typings/**/*.ts", "/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

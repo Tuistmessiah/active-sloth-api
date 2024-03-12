@@ -27,10 +27,9 @@
     "xss-clean": "^0.1.4"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only server.ts",
+    "dev": "NODE_ENV=development nodemon -r dotenv/config server.ts dotenv_config_path=.env.local",
     "start": "node dist/server.js",
-    "build": "tsc",
-    "postinstall": "npm run build"
+    "build": "tsc"
   },
   "author": "Pedro Caetano",
   "license": "ISC"
