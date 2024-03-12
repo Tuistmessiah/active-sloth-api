@@ -1,11 +1,5 @@
 {
-  "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.11.26",
-    "dotenv": "^16.4.5",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.2"
-  },
+  "devDependencies": {},
   "name": "asa-active-sloth-api",
   "version": "1.0.0",
   "description": "NodeJS with Express and Mongoose for Active Sloth API and server needs",
@@ -25,7 +19,12 @@
     "morgan": "^1.10.0",
     "undici-types": "^5.26.5",
     "validator": "^13.11.0",
-    "xss-clean": "^0.1.4"
+    "xss-clean": "^0.1.4",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.26",
+    "dotenv": "^16.4.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2"
   },
   "scripts": {
     "dev": "NODE_ENV=development nodemon -r dotenv/config server.ts dotenv_config_path=.env.local",
