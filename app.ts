@@ -26,6 +26,7 @@ app.use(helmet());
 
 // Limit requests from same API
 // TODO: Give frontend message on too many requests error
+app.set('trust proxy', true);
 const limiter = rateLimit({
   max: 300,
   windowMs: 60 * 60 * 1000,
