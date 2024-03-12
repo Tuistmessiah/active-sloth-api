@@ -14,6 +14,7 @@ import { AppError, handleCastErrorDB, handleDuplicateFieldsDB, handleJWTError, h
 
 const app = express();
 console.info('Using env: ' + process.env.NODE_ENV);
+console.info('Using env: ' + process.env.TEMP_FRONTEND_IP_ACCESS);
 
 // if (process.env.NODE_ENV === 'development') {
 //   app.use(morgan('dev'));
