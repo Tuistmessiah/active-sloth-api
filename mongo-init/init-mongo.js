@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 print("--- START: init script ---");
 
 // Use the admin database to create the root user

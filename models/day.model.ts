@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { startOfDay, parseISO, isFuture } from 'date-fns';
+import { isFuture } from 'date-fns';
 import { IDay } from '../interfaces/models.interface';
 
 const entrySchema = new mongoose.Schema(
@@ -43,12 +43,11 @@ daySchema.pre('save', async function (next) {
     next();
     return;
   }
-  const doc = this;
-  const dateAtStartOfDayUTC = new Date(doc.date.toISOString().slice(0, 10) + 'T00:00:00.000Z');
-  doc.date = dateAtStartOfDayUTC;
+  const dateAtStartOfDayUTC = new Date(this.date.toISOString().slice(0, 10) + 'T00:00:00.000Z');
+  this.date = dateAtStartOfDayUTC;
 
   try {
-    const existingDoc = await Day.findOne({ userFK: doc.userFK, date: doc.date });
+    const existingDoc = await Day.findOne({ userFK: this.userFK, date: this.date });
     if (existingDoc) throw new Error('A document for this user and date already exists.');
 
     next();

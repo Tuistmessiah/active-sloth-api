@@ -1,12 +1,16 @@
-import { Response, NextFunction } from 'express';
+import { Response, NextFunction, Request } from 'express';
 import mongoose from 'mongoose';
 
-import { CustomError } from '../interfaces/controllers.interface';
+import { CastErrorDB, CustomError, DuplicateFieldsDB, OwnershipError } from '../interfaces/errors.interface';
+import { CreateDay, GetDaysInCurrentMonth, SuccessResponse } from '../interfaces/api.interface';
+import { IUser } from '../interfaces/models.interface';
+import { ValidationErrorDB } from '../interfaces/errors.interface';
+import { RequestWithIUser } from '../interfaces/middleware.interface';
 
 // TODO: This is ALL middlware that should be in middleware folder
 
-export function catchAsync(fn: (req, res, next) => Promise<any>) {
-  return (req, res, next) => {
+export function catchAsync(fn: (req: Request | RequestWithIUser, res: Response, next: NextFunction) => Promise<Response<OwnershipError>> | Promise<void> | GetDaysInCurrentMonth | CreateDay | Promise<SuccessResponse<{ user: IUser; }>>) {
+  return (req: Request, res: Response, next: NextFunction) => {
     fn(req, res, next).catch(next);
   };
 }
@@ -37,19 +41,19 @@ export class AppError extends Error {
   }
 }
 
-export const handleCastErrorDB = (err) => {
-  const message = `Invalid ${err.path}: ${err.value}.`;
+export const handleCastErrorDB = (err: CastErrorDB) => {
+  const message = `Invalid ${err.path}: ${err.value}.`; 
   return new AppError(message, 400);
 };
 
-export const handleDuplicateFieldsDB = (err) => {
+export const handleDuplicateFieldsDB = (err: DuplicateFieldsDB) => {
   const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
   const message = `Duplicate field value: ${value}. Please use another value!`;
   return new AppError(message, 400);
 };
 
-export const handleValidationErrorDB = (err) => {
-  const errors = Object.values(err.errors).map((el) => (el as any).message);
+export const handleValidationErrorDB = (err: ValidationErrorDB) => {
+  const errors = Object.values(err.errors).map((el) => el.message);
   const message = `Invalid input data. ${errors.join('. ')}`;
   return new AppError(message, 400);
 };

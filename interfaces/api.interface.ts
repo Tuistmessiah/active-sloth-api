@@ -42,7 +42,7 @@ export interface SuccessResponse<T> extends BaseResponse {
   data: T;
 }
 
-interface ErrorResponse extends BaseResponse {
+export interface ErrorResponse extends BaseResponse {
   status: 'error';
   errorCode: number;
   message: string;

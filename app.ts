@@ -1,4 +1,4 @@
-import express, { Request } from 'express';
+import express, { ErrorRequestHandler, Request } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
@@ -87,7 +87,7 @@ app.all('*', (req, _res, next) => {
 });
 
 // Error handler - catches ALL errors
-app.use((err, _req, res, _next) => {
+app.use(((err, _req, res, _next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
@@ -104,6 +104,6 @@ app.use((err, _req, res, _next) => {
 
     sendErrorProd(error, res);
   }
-});
+}) as ErrorRequestHandler);
 
 export { app };
