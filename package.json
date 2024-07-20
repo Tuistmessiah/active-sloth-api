@@ -1,6 +1,10 @@
 {
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "@eslint/js": "^8.56.0",
+    "eslint": "^8.56.0",
+    "globals": "^15.8.0",
+    "nodemon": "^3.1.4",
+    "typescript-eslint": "^7.16.1"
   },
   "name": "asa-active-sloth-api",
   "version": "1.0.0",
@@ -29,10 +33,10 @@
     "xss-clean": "^0.1.4"
   },
   "scripts": {
-    "dev": "nodemon server.ts",
-    "dev-local": "NODE_ENV=development nodemon -r dotenv/config server.ts dotenv_config_path=.env.local",
+    "dev": "NODE_ENV=development nodemon -r dotenv/config server.ts dotenv_config_path=.env.local",
     "start": "node dist/server.js",
-    "build": "tsc --types node"
+    "build": "tsc --types node",
+    "eslint": "eslint **/*.ts"
   },
   "author": "Pedro Caetano",
   "license": "ISC"

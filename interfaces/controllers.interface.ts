@@ -1,20 +1,19 @@
-import { CookieOptions, Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 
 import { IUser } from './models.interface';
+import { CustomError } from './errors.interface';
 
-export interface CustomError extends Error {
-  statusCode: number;
-  status: string;
-  isOperational?: boolean;
-}
-
-export interface AuthResponse {
-  status: 'success';
+export interface AuthResponse extends Response {
+  responseStatus: string;
   message: string;
   token?: string;
   data: {
     user: IUser;
   };
+}
+
+export interface AuthRequest extends Request{
+  body: IUserInputDTO;
 }
 
 export interface IUserInputDTO {
@@ -27,7 +26,7 @@ export interface IUserInputDTO {
 /**
  * Signup
  */
-export type SignupEndpointReq = Request<{}, {}, IUserInputDTO>;
+export type SignupEndpointReq = Request<IUserInputDTO>;
 export type SignupRequest = SignupEndpointReq;
 export type SignupResponse = Response<AuthResponse>;
 export type SignupEndpointRes = SignupResponse | CustomError;

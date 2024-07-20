@@ -5,8 +5,8 @@ import { IUser } from '../interfaces/models.interface';
 
 import User from '../models/user.model';
 import { AppError, catchAsync, error } from '../utils/error-handling.utils';
-import { AuthResponse, IUserInputDTO, SignupRequest, SignupResponse } from '../interfaces/controllers.interface';
 import { success } from '../utils/controller.utils';
+import { AuthRequest, AuthResponse } from '../interfaces/controllers.interface';
 
 const DAY_TO_MS = 24 * 60 * 60 * 1000;
 
@@ -19,7 +19,7 @@ const signToken = (id) => {
 /**
  * Stores jwt in cookie.
  */
-const createSendToken = (user: IUser, res) => {
+const createSendToken = (user: IUser, res: Response) => {
   const outputUser = user;
   const token = signToken(user._id);
   const cookieOptions: CookieOptions = {
@@ -35,7 +35,7 @@ const createSendToken = (user: IUser, res) => {
   return { outputUser, token };
 };
 
-const signup = catchAsync(async function (req: SignupRequest, res: SignupResponse) {
+const signup = catchAsync(async (req: AuthRequest, res: AuthResponse) => {
   const newUser: IUser = await User.create({
     name: req.body.name,
     email: req.body.email,
@@ -55,7 +55,7 @@ const signup = catchAsync(async function (req: SignupRequest, res: SignupRespons
   });
 });
 
-const login = catchAsync(async (req: Request<{}, {}, IUserInputDTO>, res: Response<AuthResponse>, next: NextFunction) => {
+const login = catchAsync(async (req: AuthRequest, res: AuthResponse, next: NextFunction) => {
   const { email, password } = req.body;
   if (!email || !password) return next(new AppError('Please provide email and password!', 400));
 
@@ -67,7 +67,7 @@ const login = catchAsync(async (req: Request<{}, {}, IUserInputDTO>, res: Respon
   const { outputUser, token } = createSendToken(user, res);
 
   res.status(200).json({
-    status: 'success',
+    responseStatus: 'success',
     message: 'Login',
     token,
     data: {
@@ -77,7 +77,7 @@ const login = catchAsync(async (req: Request<{}, {}, IUserInputDTO>, res: Respon
 });
 
 /** Protected */
-const checkSession = catchAsync(async (req: Request<{}, {}, IUserInputDTO>, res: Response<AuthResponse>, next: NextFunction) => {
+const checkSession = catchAsync(async (req: Request, res: Response) => {
   return await success(res, 200, { user: req.user });
 });
 

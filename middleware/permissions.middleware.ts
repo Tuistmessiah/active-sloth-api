@@ -1,4 +1,4 @@
-import { NextFunction, Request } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
@@ -7,6 +7,7 @@ import { RequestWithIUser } from '../interfaces/middleware.interface';
 
 import { catchAsync, error } from '../utils/error-handling.utils';
 import User from '../models/user.model';
+import { OwnershipError } from '../interfaces/errors.interface';
 
 interface MiddlewareOptions {
   model: string;
@@ -21,16 +22,18 @@ interface MiddlewareOptions {
  * @returns function middleware and document in req[model]
  */
 export function checkOwnership(options: MiddlewareOptions) {
-  return catchAsync(async (req: Request, res, next) => {
+  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { model, key, idField } = options;
     const ChildModel = mongoose.model(model);
     const docId = req[key][idField];
     const childDoc = await ChildModel.findById(docId);
-    if (!childDoc) return res.status(404).json({ status: 'fail', message: `'${model}' does not exist` });
+    let errorMessage: OwnershipError = { status: 'fail', message: `'${model}' does not exist` };
+    if (!childDoc) return res.status(404).json(errorMessage);
 
     const parentId = req.user?._id.toString();
     const ownerId = childDoc.userFK.toString();
-    if (parentId !== ownerId) return res.status(403).json({ status: 'fail', message: 'Unauthorized access' });
+    errorMessage = { status: 'fail', message: 'Unauthorized access' };
+    if (parentId !== ownerId) return res.status(403).json(errorMessage);
 
     req[model] = childDoc;
     next();
@@ -42,7 +45,7 @@ export function checkOwnership(options: MiddlewareOptions) {
  * @return add to request "user"
  */
 export function protect() {
-  return catchAsync(async (req: RequestWithIUser, _res: Response, next: NextFunction) => {
+  return catchAsync(async (req: RequestWithIUser, res: Response, next: NextFunction) => {
     const authorization = req.headers.authorization;
     let token: string | undefined = undefined;
 

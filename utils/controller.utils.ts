@@ -25,7 +25,7 @@ export class ACRUD {
    * @returns
    */
   static createOne = (Model, fk?: [string, string]) =>
-    catchAsync(async (req, res, next) => {
+    catchAsync(async (req, res) => {
       const newModel = req.body;
       if (fk) {
         const [refIdProp, refId] = fk;
