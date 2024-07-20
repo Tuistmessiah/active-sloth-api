@@ -3,13 +3,13 @@
  */
 
 export type GetDaysInCurrentMonth = ApiFunction<DayDTO[]>;
-export type GetDaysInCurrentMonthRES = SuccessResponse<DayDTO[]>;
+export type GetDaysResponse = Promise<SuccessResponse<DayDTO[]>>;
 
 export type UpdateDay = ApiFunction<DayDTO>;
-export type UpdateDayRES = SuccessResponse<DayDTO>;
+export type UpdateDayResponse = SuccessResponse<DayDTO>;
 
 export type CreateDay = ApiFunction<DayDTO>;
-export type CreateDayRES = SuccessResponse<DayDTO>;
+export type CreateDayResponse = SuccessResponse<DayDTO>;
 
 /**
  * * Data Transfer Objects

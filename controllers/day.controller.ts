@@ -1,6 +1,6 @@
 import { startOfMonth, endOfMonth, parse } from 'date-fns';
 import { Request, Response } from 'express';
-import { CreateDay, GetDaysInCurrentMonth, UpdateDay } from '../interfaces/api.interface';
+import { CreateDay, GetDaysResponse, UpdateDay } from '../interfaces/api.interface';
 
 import { catchAsync, error } from '../utils/error-handling.utils';
 import { transformDayToDTO } from '../utils/parser.utils';
@@ -11,7 +11,7 @@ import Day from '../models/day.model';
 /**
  * @otherParams "user._id"
  */
-const getDaysInCurrentMonth = catchAsync(async (req: Request, res: Response): GetDaysInCurrentMonth => {
+const getDaysInCurrentMonth = catchAsync(async (req: Request, res: Response): GetDaysResponse => {
   const userId = req.user._id;
   const start = startOfMonth(new Date());
   const end = endOfMonth(new Date());
@@ -29,19 +29,21 @@ const getDaysInCurrentMonth = catchAsync(async (req: Request, res: Response): Ge
  * @queryParams "start=YYYY-MM", "end=YYYY-MM"
  * @otherParams "user._id"
  */
-const getDaysInMonths = catchAsync(async (req: Request, res: Response, next) => {
+const getDaysInMonths = catchAsync(async (req: Request, res: Response, next): GetDaysResponse => {
   const userId = req.user._id;
   const startDate = startOfMonth(parse(req.query.start as string, 'yyyy-MM', new Date()));
   const endDate = endOfMonth(parse(req.query.end as string, 'yyyy-MM', new Date()));
 
-  if (startDate > endDate) return error('Start date must be before end date.', 400, next);
+  if (startDate > endDate) error('Start date must be before end date.', 400, next);
 
   const days = await Day.find({
     userFK: userId,
     date: { $gte: startDate, $lte: endDate },
   }).sort({ date: 1 });
 
-  res.status(200).json({ status: 'success', data: days });
+  const dayDTOs = days.map(transformDayToDTO);
+
+  return await success(res, 200, dayDTOs);
 });
 
 /**

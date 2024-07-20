@@ -33,8 +33,7 @@
     "xss-clean": "^0.1.4"
   },
   "scripts": {
-    "dev": "nodemon server.ts",
-    "dev-local": "NODE_ENV=development nodemon -r dotenv/config server.ts dotenv_config_path=.env.local",
+    "dev": "NODE_ENV=development nodemon -r dotenv/config server.ts dotenv_config_path=.env.local",
     "start": "node dist/server.js",
     "build": "tsc --types node",
     "eslint": "eslint **/*.ts"
