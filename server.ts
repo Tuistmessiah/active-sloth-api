@@ -7,9 +7,8 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-console.info('Connecting to: ' + process.env.DATABASE);
-const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
-mongoose.connect(DB).then(() => {
+console.info('Connecting to: ' + process.env.MONGO_DB);
+mongoose.connect(process.env.MONGO_URI).then(() => {
   console.info('DB connection successful!');
   mongoose.connection.db
     .listCollections()
